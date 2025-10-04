@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Impact & Tsunami Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    body, html { margin:0; padding:0; height:100%; width:100%; }
+    #map { height: 100%; width: 100%; }
+
+    /* Top-right vertical input panel */
+    #controls {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(0,0,0,0.7); padding: 12px; border-radius: 8px;
+      color: white; display: flex; flex-direction: column; gap: 8px;
+      z-index: 1000; min-width: 220px;
+    }
+    #controls input { width: 100%; padding: 4px; }
+    #controls button { cursor: pointer; padding: 6px; background-color: #f03;
+      border: none; color: white; border-radius: 4px; }
+    #controls label { font-size: 14px; }
+
+    /* Status box at bottom-left */
+    #statusBox {
+      position:absolute; bottom:10px; left:10px;
+      background:rgba(255,255,255,0.9); padding:8px; border-radius:4px; z-index:1000;
+      font-weight:bold;
+    }
+
+    /* Log box at bottom-right */
+    #logBox {
+      position:absolute; bottom:10px; right:10px;
+      background:rgba(255,255,255,0.9); padding:10px; border-radius:6px; z-index:1000;
+      max-height:200px; overflow-y:auto; width:300px; font-size:12px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="controls">
+  <label>Latitude:<br><input id="lat" type="number" step="0.0001" value="19.4326"></label>
+  <label>Longitude:<br><input id="lng" type="number" step="0.0001" value="-99.1332"></label>
+  <button id="applyInputs">Apply Inputs</button>
+</div>
+
+<div id="statusBox">
+  <div>Last Meteor: <span id="lastMeteor">Nothing has appeared yet</span></div>
+  <div>Last Tsunami: <span id="lastTsunami">Nothing has appeared yet</span></div>
+</div>
+
+<div id="logBox">
+  <strong>Event History:</strong>
+  <ul id="eventLog"></ul>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const map = L.map("map").setView([19.4326, -99.1332], 4);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+
+  let craterLayer = L.layerGroup().addTo(map);
+  let tsunamiLayer = L.layerGroup().addTo(map);
+  let inputMarker; // marker for input location
+
+  // Sample data for demonstration
+  const meteorData = [
+    { lat: 19.4326, lng: -99.1332, craterKm: 50, timestamp: "2025-10-04 12:30" },
+    { lat: 35.6895, lng: 139.6917, craterKm: 30, timestamp: "2025-09-30 08:15" }
+  ];
+  const tsunamiData = [
+    { lat: 35.6895, lng: 139.6917, timestamp: "2025-10-01 09:00" },
+    { lat: -8.8, lng: 115.2, timestamp: "2025-09-28 22:10" }
+  ];
+
+  function distanceKm(lat1, lng1, lat2, lng2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 +
+              Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+    const c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R*c;
+  }
+
+  function applyInputs() {
+    const lat = parseFloat(document.getElementById("lat").value);
+    const lng = parseFloat(document.getElementById("lng").value);
+
+    craterLayer.clearLayers();
+    tsunamiLayer.clearLayers();
+
+    // Remove previous input marker if exists
+    if (inputMarker) map.removeLayer(inputMarker);
+
+    // Add marker for input location
+    inputMarker = L.marker([lat, lng], {icon: L.icon({
+      iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
+    })}).addTo(map).bindPopup(`Your location: (${lat.toFixed(4)}, ${lng.toFixed(4)})`).openPopup();
+
+    // Find last meteor near this location (within 200 km)
+    const nearbyMeteor = meteorData.slice().reverse().find(m => distanceKm(lat, lng, m.lat, m.lng) < 200);
+    const nearbyTsunami = tsunamiData.slice().reverse().find(t => distanceKm(lat, lng, t.lat, t.lng) < 200);
+
+    const meteorTextEl = document.getElementById("lastMeteor");
+    const tsunamiTextEl = document.getElementById("lastTsunami");
+    const logList = document.getElementById("eventLog");
+
+    logList.innerHTML = "";
+
+    if (nearbyMeteor) {
+      meteorTextEl.textContent = `Meteor at (${nearbyMeteor.lat.toFixed(2)}, ${nearbyMeteor.lng.toFixed(2)}) on ${nearbyMeteor.timestamp}`;
+      L.circle([nearbyMeteor.lat, nearbyMeteor.lng], {
+        color: "red", fillColor: "#f03", fillOpacity: 0.4, radius: nearbyMeteor.craterKm*1000
+      }).addTo(craterLayer);
+      const li = document.createElement("li");
+      li.textContent = `Meteor at (${nearbyMeteor.lat.toFixed(2)}, ${nearbyMeteor.lng.toFixed(2)}) - ${nearbyMeteor.craterKm} km - ${nearbyMeteor.timestamp}`;
+      logList.appendChild(li);
+    } else {
+      meteorTextEl.textContent = "Nothing has appeared yet";
+    }
+
+    if (nearbyTsunami) {
+      tsunamiTextEl.textContent = `Tsunami near (${nearbyTsunami.lat.toFixed(2)}, ${nearbyTsunami.lng.toFixed(2)}) on ${nearbyTsunami.timestamp}`;
+      const poly = [
+        [nearbyTsunami.lat+0.5, nearbyTsunami.lng-0.5],
+        [nearbyTsunami.lat+0.5, nearbyTsunami.lng+0.5],
+        [nearbyTsunami.lat-0.5, nearbyTsunami.lng+0.5],
+        [nearbyTsunami.lat-0.5, nearbyTsunami.lng-0.5]
+      ];
+      L.polygon(poly, { color: "blue", fillOpacity: 0.3 }).addTo(tsunamiLayer);
+      const li = document.createElement("li");
+      li.textContent = `Tsunami near (${nearbyTsunami.lat.toFixed(2)}, ${nearbyTsunami.lng.toFixed(2)}) - ${nearbyTsunami.timestamp}`;
+      logList.appendChild(li);
+    } else {
+      tsunamiTextEl.textContent = "Nothing has appeared yet";
+    }
+
+    map.setView([lat, lng], 6);
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("applyInputs").addEventListener("click", applyInputs);
+  });
+
+  // Initial load
+  applyInputs();
+</script>
+
+</body>
+</html>
