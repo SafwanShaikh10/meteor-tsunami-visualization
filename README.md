@@ -5,19 +5,21 @@ Interactive visualization of meteor impacts and tsunami events with real-time lo
 ## Overview
 Interactive map-based visualization showing meteor impacts and tsunami events.
 
-- Enter **latitude and longitude** to mark a location.
-- Displays **latest meteor** near the location with crater visualization.
-- Displays **latest tsunami** near the location with polygon visualization.
-- Shows **status** and **history log** of events.
+- Enter **latitude and longitude** to mark a location on the map.
+- Displays **latest meteor** near the location with crater visualization (red circle).
+- Displays **latest tsunami** near the location with polygon visualization (blue polygon).
+- Shows **status** of the last meteor and tsunami at the bottom-left.
+- Maintains a **history log** of events at the bottom-right.
 - Marker updates automatically when inputs are applied.
 
 ## Features
-- Top-right vertical input panel for latitude/longitude.
-- Marker for selected location.
-- Red circle for meteor impact, blue polygon for tsunami.
-- Bottom-left status box shows last meteor & tsunami.
-- Bottom-right event history log.
-- Zooms to selected location automatically.
+- **Top-right vertical input panel** for entering latitude and longitude.
+- **Map marker** shows the selected location.
+- **Meteor visualization**: red circle representing crater size.
+- **Tsunami visualization**: blue polygon showing affected area.
+- **Bottom-left status box**: shows last meteor and tsunami events.
+- **Bottom-right event log**: lists all nearby events chronologically.
+- Automatically **zooms to the selected location**.
 
 ## Tech Stack
 - HTML, CSS, JavaScript
@@ -25,6 +27,5 @@ Interactive map-based visualization showing meteor impacts and tsunami events.
 
 ## Demo
 1. Open `index.html` in your browser.
-2. Enter any latitude and longitude.
-3. Click **Apply Inputs** to see events and markers.
-
+2. Enter latitude and longitude.
+3. Click **Apply Inputs** to see meteor and tsunami events near that location.
