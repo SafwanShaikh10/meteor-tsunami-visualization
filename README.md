@@ -1,17 +1,16 @@
-# Meteor and Tsunami Geospatial Visualization
+# Cosmic Impact: A Global Event Tracker
 
-An interactive geospatial platform for tracking and visualizing meteor impact history and tsunami events. This application provides real-time updates and historical analysis through a unified mapping interface.
+Cosmic Impact is a data-storytelling platform that visualizes the awe-inspiring history of meteor impacts and tsunami events across our planet. It transforms raw geospatial data into an interactive visual journey.
 
-## Features
-- Dynamic Mapping: Visualizes events with interactive markers and detailed popups.
-- Location-Based Queries: Users can input coordinates to view local event history.
-- Historical Logs: Comprehensive database of meteor impacts and tsunami occurrences.
-- Real-Time Indicators: Visual status indicators for the latest reported events.
+## The Narrative
+Our planet has a dynamic and often dramatic history. This project allows users to explore that history through a unified map, making it easy to see patterns in natural events and understand the scale of past cosmic interactions with Earth.
 
-## Technology Stack
-- JavaScript (Frontend Logic)
-- Leaflet.js (Geospatial Mapping)
-- OpenStreetMap (Base Layer Data)
+## Visual Features
+- Interactive Mapping: Powered by Leaflet, users can zoom across the globe and click on specific impact or tsunami sites for detailed data.
+- Location Search: Enter any coordinates to discover the natural history of that specific region.
+- Unified History: Combines disparate data sources into a single, cohesive timeline and visual log.
 
-## Usage
-Open the application in a web browser and enter latitude/longitude coordinates to begin visualizing events in that specific region.
+## Built With
+- Leaflet.js for high-performance geospatial rendering.
+- OpenStreetMap for detailed, reliable map layers.
+- Vanilla JavaScript for efficient, reactive data handling.
